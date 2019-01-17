@@ -47,11 +47,11 @@ GammaCopy currently supports only the SMDB format.  Plans include adding support
 
 ### build options
 
-`-d, --database` **Required**. DB files to process.
+`-d, --database` **Required**. template files to use.
 
 `-o, --output` Path to the output folder.
 
-`-n, --containers` Write output to `<outputpath>/<databasefilename>/`
+`-n, --containers` Write output to `<outputpath>/<templatefilename>/`
 
 `-f, --coverage-hybrid-to-file` Gather entries not in output location or metadata cache. Output coverage information to file.
 
@@ -67,7 +67,7 @@ GammaCopy currently supports only the SMDB format.  Plans include adding support
 
 `-j, --stdout-coverage-full` When outputting coverage to console, DO NOT omit the missing entry list.
 
-`-k, --delete-extras` Delete extra files found in the output path but not in the DB file.
+`-k, --delete-extras` Delete extra files found in the output path but not in the template file.
 
 `-l, --delete-empty-folders` Delete empty folders found in the output path.
 
