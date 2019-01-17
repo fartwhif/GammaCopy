@@ -1,6 +1,6 @@
 # GammaCopy
 
-Reconstitute directory structure and files by use of a metadata cache and SmokeMonster DataBases (or SMDBs)
+Reconstitute directory structure and files by use of a metadata cache and templates.  Currently only supports SmokeMonster DataBase (or SMDB) templates.
 
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
