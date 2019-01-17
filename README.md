@@ -7,9 +7,9 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 [origin of SMDBs](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database)
 
-SMDBs allow one to share/archive file organization and identities by use of cryptographic hashes.  It works well for preserving metadata, which can be used to reconstitute file/folder structures.  Think of it as a way to comment on a sequence of bytes.  Please go [here](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database) to learn more about SMDBs
+Template files allow one to share/archive file organization and identities by use of cryptographic hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on and preserve the hierarchy of sequences of bytes.
 
-GammaCopy uses the SMDB format, and is an alternative to the python build and parse scripts [here](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database) which leverages a metadata cache resulting in a supreme efficiency increase.
+GammaCopy currently supports only the SMDB format.  Plans include adding support for additional template formats.
 
 ***
 ## Disclaimer
@@ -23,9 +23,9 @@ GammaCopy uses the SMDB format, and is an alternative to the python build and pa
 
 | verb  | description                                                                                       |
 |-------|---------------------------------------------------------------------------------------------------|
-| parse | Generate a template file                                                                                 |
+| parse | Generate a template file.                                                                         |
 | index | Gather metadata for the source locations and save it in the index database.                       |
-| build | Check coverage or reconstitute directory structure and files based on a template file. |
+| build | Check coverage or reconstitute directory structure and files based on a template file.            |
 
 ### parse options
 
