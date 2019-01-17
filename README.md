@@ -1,15 +1,13 @@
 # GammaCopy
 
-Reconstitute directory structure and files by use of a metadata cache and templates.  Currently only supports SmokeMonster DataBase (or SMDB) templates.
+Reconstitute directory structure and files by use of a metadata cache and templates.
 
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
 
-[origin of SMDBs](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database)
-
 Template files allow one to share/archive file organization and identities by use of cryptographic hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on and preserve the hierarchy of sequences of bytes.
 
-GammaCopy currently supports only the SMDB format.  Plans include adding support for additional template formats.
+GammaCopy currently supports only template files of the [SMDB](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database) format.  Plans include adding support for additional template formats.
 
 ***
 ## Disclaimer
