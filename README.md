@@ -24,7 +24,7 @@ GammaCopy currently supports only the SMDB format.  Plans include adding support
 | verb  | description                                                                                       |
 |-------|---------------------------------------------------------------------------------------------------|
 | parse | Generate a template file.                                                                         |
-| index | Gather metadata for the source locations and save it in the index database.                       |
+| index | Gather metadata for the source locations and save it in the metadata cache.                       |
 | build | Check coverage or reconstitute directory structure and files based on a template file.            |
 
 ### parse options
