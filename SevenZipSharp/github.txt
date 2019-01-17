@@ -1,0 +1,1 @@
+this is a clone of https://github.com/fartwhif/SevenZipSharp/tree/speed
