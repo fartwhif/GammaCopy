@@ -23,9 +23,9 @@ GammaCopy uses the SMDB format, and is an alternative to the python build and pa
 
 | verb  | description                                                                                       |
 |-------|---------------------------------------------------------------------------------------------------|
-| parse | Make an SMDB file                                                                                 |
+| parse | Generate a template file                                                                                 |
 | index | Gather metadata for the source locations and save it in the index database.                       |
-| build | Check coverage or build output based on DB files of various types (currently only supports SMDB). |
+| build | Check coverage or reconstitute directory structure and files based on a template file. |
 
 ### parse options
 
