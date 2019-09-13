@@ -431,7 +431,7 @@ namespace GammaCopy
                                 progress.blurb = $"{numerator.ToString().PudLeft(4)} / {numResults} {entry.Path.Tail(40)}";
                                 progress.Report((double)numerator / numResults);
                                 numerator++;
-                                string entryDir = Path.Combine(outputPath, Path.GetDirectoryName(entry.Path.Replace('/', '\\')));
+                                string entryDir = Path.Combine(outputPath, ZlpPathHelper.GetDirectoryPathNameFromFilePath(entry.Path.Replace('/', '\\')));
                                 string entryPath = Path.Combine(outputPath, entry.Path.Replace('/', '\\'));
                                 ZlpFileInfo destFil = new ZlpFileInfo(entryPath);
                                 if (destFil.SafeExists())
@@ -515,7 +515,7 @@ namespace GammaCopy
                         progress.blurb = $"{numerator.ToString().PudLeft(4)} / {entries.Count} {entry.Path.Tail(40)}";
                         progress.Report((double)numerator / entries.Count);
                         numerator++;
-                        string entryDir = Path.Combine(outputPath, Path.GetDirectoryName(entry.Path));
+                        string entryDir = Path.Combine(outputPath, ZlpPathHelper.GetDirectoryPathNameFromFilePath(entry.Path));
                         string entryPath = Path.Combine(outputPath, entry.Path);
                         ZlpDirectoryInfo d = new ZlpDirectoryInfo(entryDir);
                         d.SafeCheckCreate();
