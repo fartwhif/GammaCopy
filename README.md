@@ -1,19 +1,18 @@
 # GammaCopy
 
-Reconstitute directory structure and files by use of a metadata cache and templates.
+Reconstitute directory structure and files by use of a metadata cache and templates (sometimes called layouts).  Highly optimized caching system, interruptable, with deep iso and archive traversal.
 
+Template files allow one to share/archive file organization and identities by use of hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on, specify hierarchy of, and identify data.
+
+GammaCopy currently supports only [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database) templates.
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
-
-Template files allow one to share/archive file organization and identities by use of cryptographic hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on and preserve the hierarchy of sequences of bytes.
-
-GammaCopy currently supports only template files of the [SMDB](https://github.com/SmokeMonsterPacks/EverDrive-Packs-Lists-Database) format.  Plans include adding support for additional template formats.
 
 ***
 ## Disclaimer
 **You are responsible for your own actions.** If you mess something up or loose data while using this software, it's your fault, and your fault only.
 
-- *I am in no way affiliated with SmokeMonster, nor is this project endorsed by SmokeMonster.*
+- *I am in no way affiliated with, nor is this project endorsed by [SmokeMonsterPacks](https://github.com/SmokeMonsterPacks) or SmokeMonster.*
 
 ***
 
@@ -73,8 +72,12 @@ GammaCopy currently supports only template files of the [SMDB](https://github.co
 
 ## Examples
 
+
+### read an SMDB, and using the cache, locate the files and copy them to an output path as specified in template:
 `>GammaCopy build -d "Y:\mySMDB.txt" -c -f -g -o "Y:\nes"`
 
+### read archives and update cache with all hashes and locations:
 `>GammaCopy index -s "Y:\pilesofarchives\"`
 
+### read an organized set of files and directory structure and create a new SMDB for it:
 `>GammaCopy parse -p "Y:\myperfectset" -w "Y:\perfectset.txt" -r "perfecto"`
