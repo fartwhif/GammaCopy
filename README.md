@@ -1,6 +1,6 @@
 # GammaCopy
 
-Reconstitute directory structure and files by use of a metadata cache and templates (sometimes called layouts).  Highly optimized caching system, interruptable, with deep iso and archive traversal.
+Reconstitute directory structure and files by use of a metadata cache and templates (sometimes called layouts).  Highly optimized caching system, interruptable, with deep iso and deep archive traversal.
 
 Template files allow one to share/archive file organization and identities by use of hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on, specify hierarchy of, and identify data.
 
