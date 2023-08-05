@@ -30,9 +30,9 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 `-w, --parsed-output-destination`    **Required**. Write parsed output to this file.
 
-`-r, --global-prepend`               prepend to all paths.
+`-r, --global-prepend`
 
-`-t, --prepend-last-folder`          prepend the rightmost folder of the current parse folder to paths.
+`-t, --prepend-last-folder`
 
 ### index options
 
@@ -72,12 +72,11 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 ## Examples
 
+#### use a template to build file and folder structures:
+`>GammaCopy build -d "Y:\nes template.txt" -c -f -g -o "Y:\nes"`
 
-### read an SMDB, and using the cache, locate the files and copy them to an output path as specified in template:
-`>GammaCopy build -d "Y:\mySMDB.txt" -c -f -g -o "Y:\nes"`
-
-### read archives and update cache with all hashes and locations:
+#### update the metadata cache with all hashes and locations:
 `>GammaCopy index -s "Y:\pilesofarchives\"`
 
-### read an organized set of files and directory structure and create a new SMDB for it:
-`>GammaCopy parse -p "Y:\myperfectset" -w "Y:\perfectset.txt" -r "perfecto"`
+#### create a new template based on an organized file and folder structure:
+`>GammaCopy parse -p "Y:\finalset" -w "Y:\final.txt" -r "final"`
