@@ -2,7 +2,7 @@
 
 Reconstitute directory structure and files using a metadata cache and templates (sometimes called layouts).  Highly optimized caching system, interruptable, with deep archive traversal.
 
-Template files allow one to share/archive file organization and identities by use of hashes.  Templates work well for preserving metadata, which can be used to reconstitute file/folder structures.  Templates provide a way to comment on, specify hierarchy of, and identify data.
+Template files allow one to share/archive file organization and identities by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Templates work well for preserving metadata such as file sums and file and folder names.  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.   A template is like a `.ZIP` file but without the actual data.
 
 GammaCopy currently supports only [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database) templates.
 
@@ -18,11 +18,11 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 ## Command line
 
-| verb  | description                                                                                       |
-|-------|---------------------------------------------------------------------------------------------------|
-| parse | Generate a template file.                                                                         |
-| index | Gather metadata for the source locations and save it in the metadata cache.                       |
-| build | Check coverage or reconstitute directory structure and files based on a template file.            |
+| verb  | description                                                                                                              |
+|-------|--------------------------------------------------------------------------------------------------------------------------|
+| parse | Create a template file.                                                                                                  |
+| index | Store in a database the sums of all source material.  Metadata caching vastly improves build performance.                |
+| build | Restore files and folder structure based on a given template and the existing available source material.                 |
 
 ### parse options
 
@@ -75,7 +75,7 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 #### use a template to build file and folder structures:
 `>GammaCopy build -d "Y:\nes template.txt" -c -f -g -o "Y:\nes"`
 
-#### update the metadata cache with all hashes and locations:
+#### update the metadata cache with all sums and locations:
 `>GammaCopy index -s "Y:\pilesofarchives\"`
 
 #### create a new template based on an organized file and folder structure:
