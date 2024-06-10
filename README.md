@@ -1,8 +1,8 @@
 # GammaCopy
 
-Reconstitute directory structure and files using a metadata cache and templates (sometimes called layouts).  Highly optimized caching system, interruptable, with deep archive traversal.
+A template (sometimes called a layout) is like a `.ZIP` file but without the actual data.  Save folder and file structure to a template file.  Restore files and folder structure based on a given template and the existing available source material.  GammaCopy has a Highly optimized metadata caching system, interruptable, with deep archive traversal - for example it will find a file buried in a `.RAR` in a `.ZIP` in an `.ISO` in a `.7z` and so on, limited by your PC's resources.
 
-Template files allow one to share/archive file organization and identities by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Templates work well for preserving metadata such as file sums and file and folder names.  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.   A template is like a `.ZIP` file but without the actual data.
+Template files allow one to share/archive file organization and identities by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Templates work well for preserving metadata such as file sums and file and folder names.  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.
 
 GammaCopy currently supports only [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database) templates.
 
