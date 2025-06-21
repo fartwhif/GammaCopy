@@ -80,3 +80,20 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 #### create a new template based on an organized file and folder structure:
 `>GammaCopy parse -p "Y:\finalset" -w "Y:\final.txt" -r "final"`
+
+## Getting Started
+
+The first thing you will want to do is have GammaCopy index, or analyze all of your actual files, called the "source material".  The great thing about all this is that the source material need not be organized at all!  The organization comes from the templates.  GammaCopy will by default recursively delve as deep as it can within supported unencrypted filetypes, ISOs, RARs, 7z, even EXEs.  The analysis process duration depends on system resources, network conditions, and how extensive your source material is.  To begin the process, issue the following command:
+
+```
+C:\Users\User>E:\projects\GammaCopy\GammaCopy\bin\Debug\GammaCopy.exe index -s Z:\emulation
+Using metadata cache: C:\Users\User\AppData\Roaming\GammaCopy\index.db
+Index Options:
+source(s): Z:\emulation
+onebyone: False
+disable-archive-traversal: False
+Finding orphaned metadata cache entries, metadata cache size: 0.
+metadata cache pruning took 00:00:00.0072307.
+Refreshing metadata cache for: Z:\emulation
+```
+
