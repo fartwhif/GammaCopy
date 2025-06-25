@@ -44,21 +44,24 @@ namespace GammaCopy
         }
         public void Insert(Result res)
         {
-            param1.Value = res.ParentId;
-            param2.Value = res.Path;
-            param3.Value = res.Md5;
-            param4.Value = res.Length;
-            param5.Value = (int)res.Modified.ToTimestamp();
-            param6.Value = (int)res.Created.ToTimestamp();
-            param7.Value = res.ArchiveIndex;
-            param8.Value = res.Md5Split.Item1;
-            param9.Value = res.Md5Split.Item2;
-            param10.Value = res.PathMd5Split.Item1;
-            param11.Value = res.PathMd5Split.Item2;
+            if (res.Md5Split != null && res.PathMd5Split != null)
+            {
+                param1.Value = res.ParentId;
+                param2.Value = res.Path;
+                param3.Value = res.Md5;
+                param4.Value = res.Length;
+                param5.Value = (int)res.Modified.ToTimestamp();
+                param6.Value = (int)res.Created.ToTimestamp();
+                param7.Value = res.ArchiveIndex;
+                param8.Value = res.Md5Split.Item1;
+                param9.Value = res.Md5Split.Item2;
+                param10.Value = res.PathMd5Split.Item1;
+                param11.Value = res.PathMd5Split.Item2;
 
-            command.ExecuteNonQuery();
-            lastInsertIdCmd.ExecuteNonQuery();
-            res.Id = Convert.ToInt64(lastInsertIdCmd.ExecuteScalar());
+                command.ExecuteNonQuery();
+                lastInsertIdCmd.ExecuteNonQuery();
+                res.Id = Convert.ToInt64(lastInsertIdCmd.ExecuteScalar());
+            }
         }
         public DbTransaction txn = null;
         public SQLiteCommand command = null;

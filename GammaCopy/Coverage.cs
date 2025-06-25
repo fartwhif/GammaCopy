@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GammaCopy.Formats;
+using System;
 using System.Collections.Generic;
 using System.Text;
 

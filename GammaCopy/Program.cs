@@ -1,6 +1,7 @@
 ﻿using CommandLine;
 using DamienG.Security.Cryptography;
 using DiscUtils.Iso9660;
+using GammaCopy.Formats;
 using Microsoft.Win32.SafeHandles;
 using SevenZip;
 using System;
@@ -13,7 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using ZetaLongPaths;
@@ -43,7 +43,7 @@ namespace GammaCopy
             }
         }
         private static string IndexPath => Path.Combine(DataPath, "index.db");
-        
+
         private static void Logout(string what = null)
         {
             if (!string.IsNullOrWhiteSpace(what))
@@ -158,6 +158,7 @@ namespace GammaCopy
             Log($"Completed Parsing {allFiles.Count} files in {sw1.Elapsed}");
             ZlpIOHelper.WriteAllText(opts.OutputPath, entries.ToSMDB());
         }
+
         private static void Build(BuildOptions opts)
         {
             Log(opts.ToString());
@@ -178,6 +179,7 @@ namespace GammaCopy
             List<string> coverageFilePaths = new List<string>();
             Stopwatch sw1 = Stopwatch.StartNew();
             Stopwatch sw4 = Stopwatch.StartNew();
+
             foreach (string smdb in opts.SMDBs)
             {
                 string jobName = Path.GetFileNameWithoutExtension(smdb);
@@ -186,29 +188,13 @@ namespace GammaCopy
                 coverageFilePaths.Add(coverageFilePath);
                 List<SMDBEntry> entries = new List<SMDBEntry>();
 
-                string[] lines = File.ReadAllLines(smdb);
-                int index = 0;
-                foreach (string line in lines)
-                {
-                    Match match = Regex.Match(line, @"([a-fA-F0-9]+)\t([^\t]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)");
-                    if (match.Success)
-                    {
-                        SMDBEntry entry = new SMDBEntry
-                        {
-                            Index = index,
-                            SHA256 = match.Groups[1].Value.ToLower(),
-                            Path = match.Groups[2].Value,
-                            SHA1 = match.Groups[3].Value.ToLower(),
-                            MD5 = match.Groups[4].Value.ToLower(),
-                            CRC32 = match.Groups[5].Value.ToLower()
-                        };
-                        index++;
-                        allJobsCombined.Add(entry);
-                        entries.Add(entry);
-                    }
-                }
-                allJobs[smdb] = entries;
+                DatParser parser = new DatParser();
+                parser.fpDatFile = smdb;
+                parser.Parse();
+
+                allJobs[smdb] = parser.MergedEntries;
             }
+
             List<string> ExtraFileChecksDone = new List<string>();
             List<string> EmptyFolderChecksDone = new List<string>();
             //Log($"Read {allJobsCombined.Count} database entries in {sw1.Elapsed}");
@@ -468,7 +454,7 @@ namespace GammaCopy
                                     pending.Add(entry);
                                 }
                             }
-                            catch(Exception ex) { pending.Add(entry); }
+                            catch (Exception ex) { pending.Add(entry); }
                             tsc.SetResult(new object());
                         }), TaskCreationOptions.AttachedToParent);
 
@@ -808,7 +794,7 @@ namespace GammaCopy
                 try
                 {
                     CDReader cd = new CDReader(result.FileStream, true);
-                    List<string> cdfilePaths = GetAllCDFilePaths(cd, "\\");
+                    List<string> cdfilePaths = cd.GetAllCDFilePaths("\\");
                     foreach (string cdfile in cdfilePaths)
                     {
                         Result res = new Result
@@ -1348,21 +1334,38 @@ namespace GammaCopy
                             {
                                 progress.blurb = $"{numerator.ToString().PudLeft(4)} / {files.Count} {file.Path.Tail(40)}";
 
-                                SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(file.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
-                                using (FileStream stream = new FileStream(safeFileHandle, System.IO.FileAccess.Read, 65536, UseOverlappedAsyncIO))
+                                try
                                 {
-                                    byte[] hash = md5.ComputeHash(stream);
-                                    file.Md5 = hash.AsHex();
-                                    file.Md5Split = hash.Md5Split();
-                                    file.FileStream = stream;
-                                    if (currentIndexOptions == null || !currentIndexOptions.DisableArchiveTraversal)
+                                    SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(file.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
+                                    using (FileStream stream = new FileStream(safeFileHandle, System.IO.FileAccess.Read, 65536, UseOverlappedAsyncIO))
                                     {
-                                        GetAllChecksums(file);
+                                        byte[] hash = md5.ComputeHash(stream);
+                                        file.Md5 = hash.AsHex();
+                                        file.Md5Split = hash.Md5Split();
+                                        file.FileStream = stream;
+                                        if (currentIndexOptions == null || !currentIndexOptions.DisableArchiveTraversal)
+                                        {
+                                            GetAllChecksums(file);
+                                        }
+
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine(ex.Message);
+                                }
+                                finally
+                                {
+                                    if (file.FileStream != null)
+                                    {
+                                        try
+                                        {
+                                            file.FileStream.Dispose();
+                                            file.FileStream = null;
+                                        }
+                                        catch (Exception ex) { }
                                     }
                                     progress.Report(numerator / files.Count);
-
-                                    file.FileStream.Dispose();
-                                    file.FileStream = null;
                                 }
                             }
                             Interlocked.Decrement(ref numThreads);
@@ -1492,16 +1495,6 @@ namespace GammaCopy
             });
             return results.ToList();
         }
-        internal static List<string> GetAllCDFilePaths(CDReader cd, string path)
-        {
-            List<string> files = new List<string>();
-            files.AddRange(cd.GetFiles(path));
-            string[] dirs = cd.GetDirectories(path);
-            foreach (string dir in dirs)
-            {
-                files.AddRange(GetAllCDFilePaths(cd, dir));
-            }
-            return files;
-        }
+
     }
 }

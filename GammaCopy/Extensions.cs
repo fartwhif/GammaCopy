@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DiscUtils.Iso9660;
+using GammaCopy.Formats;
+using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
@@ -37,6 +39,19 @@ namespace GammaCopy
             //return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
         #endregion
+
+
+        internal static List<string> GetAllCDFilePaths(this CDReader cd, string path)
+        {
+            List<string> files = new List<string>();
+            files.AddRange(cd.GetFiles(path));
+            string[] dirs = cd.GetDirectories(path);
+            foreach (string dir in dirs)
+            {
+                files.AddRange(GetAllCDFilePaths(cd, dir));
+            }
+            return files;
+        }
 
         public static bool Equals2(this Tuple<long, long> value, Tuple<long, long> value2)
         {

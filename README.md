@@ -4,7 +4,13 @@ An `.SMDB` file, template file, sometimes called a layout, is like a `.ZIP` file
 
 Template files allow one to share/archive file organization and identities by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Templates work well for preserving metadata such as file sums and file and folder names.  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.
 
-GammaCopy currently supports only [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database) templates.
+
+Template Support: 
+| Input | Output  |   |
+|---|---|---|
+| X | X | [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database)  |
+| X |   | [Logiqx Data files](https://github.com/Logiqx/logiqx-dev)  |
+
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
 

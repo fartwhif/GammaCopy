@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GammaCopy
+namespace GammaCopy.Formats
 {
     internal class SMDBEntry
     {

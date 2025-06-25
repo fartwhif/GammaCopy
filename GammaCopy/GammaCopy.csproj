@@ -115,6 +115,8 @@
     <Compile Include="Deleter.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Formats\DatParser.cs" />
+    <Compile Include="Formats\Logiqx.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Inserter.cs" />
     <Compile Include="Options.cs" />
@@ -123,7 +125,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="SevenZipExtractorHelpers.cs" />
-    <Compile Include="SMDBEntry.cs" />
+    <Compile Include="Formats\SMDBEntry.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
