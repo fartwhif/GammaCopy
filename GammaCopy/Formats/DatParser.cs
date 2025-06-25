@@ -132,6 +132,13 @@ namespace GammaCopy.Formats
                                     Entries[file.Key].AddRange(ParseLogiqx(st));
                                     break;
                             }
+                            var badEntries = Entries[file.Key].Where(k => string.IsNullOrWhiteSpace(k.MD5)).ToList();
+                            if (badEntries.Count > 0)
+                            {
+                                Console.WriteLine($"WARNING: GammaCopy supports only MD5 data hashes. Discarding {badEntries.Count} Entries missing an MD5 hash.");
+                                Entries[file.Key] = Entries[file.Key].Except(badEntries).ToList();
+                                SMDBEntry.Renumber(Entries[file.Key]);
+                            }
                         }
                     }
                 }

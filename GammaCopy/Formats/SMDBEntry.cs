@@ -19,6 +19,17 @@ namespace GammaCopy.Formats
         public List<Result> Results { get; set; } = new List<Result>();
 
 
+        public static List<SMDBEntry> Renumber(List<SMDBEntry> entries)
+        {
+            int i = 0;
+            foreach (var k in entries)
+            {
+                k.Index = i;
+                i++;
+            }
+            return entries;
+        }
+
         public static List<SMDBEntry> ParseSMDB(string[] lines)
         {
             List<SMDBEntry> entries = new List<SMDBEntry>();
