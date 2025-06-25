@@ -1,15 +1,16 @@
 # GammaCopy
 
-An `.SMDB` file, template file, sometimes called a layout, is like a `.ZIP` file but without the actual data.  Save folder and file structure to a template file.  Restore files and folder structure based on a given template and the existing available source material.  GammaCopy has a Highly optimized metadata caching system, interruptable, with deep archive traversal - for example it will find a file buried several layers deep in a `.RAR` within a `.ZIP` from an `.ISO` inside a `.7z`, and so on, and it will store its hash in an `SQLite` database so that if the data is ever needed GammaCopy has recorded the source material's existence and exactly how to retrieve it.
+An `.SMDB` file, template file, sometimes called a layout, is like a `.ZIP` file but without the actual data.  Save folder and file structure to a template file.  Restore files and folder structure based on a given template and the existing available source material.  GammaCopy has a Highly optimized metadata caching system, incorruptible, with deep archive traversal - for example it will find a file buried several layers deep in a `.RAR` within a `.ZIP` from an `.ISO` inside a `.7z`, and so on, and it will store its hash in an `SQLite` database so that if the data is ever needed GammaCopy has recorded the source material's existence and exactly how to retrieve it.
 
-Template files allow one to share/archive file organization and identities by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Templates work well for preserving metadata such as file sums and file and folder names.  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.
+Template files allows rebuilding files and file organization, and sharing and archiving of file metadata by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.  Templates can be shared without sharing the actual data.
 
 
 Template Support: 
 | Input | Output  |   |
 |---|---|---|
-| X | X | [SourceMaterial DataBase (or SMDB)](https://github.com/frederic-mahe/Hardware-Target-Game-Database)  |
-| X |   | [Logiqx Data files](https://github.com/Logiqx/logiqx-dev)  |
+| X | X | [SourceMaterial](https://github.com/frederic-mahe/Hardware-Target-Game-Database)  |
+| X |   | [Logiqx](https://github.com/Logiqx/logiqx-dev)  |
+| X |   | [clrmamepro](https://mamedev.emulab.it/clrmamepro/binaries/readme.html)  |
 
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
