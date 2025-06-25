@@ -115,8 +115,10 @@
     <Compile Include="Deleter.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Formats\ClrmamePro.cs" />
     <Compile Include="Formats\DatParser.cs" />
     <Compile Include="Formats\Logiqx.cs" />
+    <Compile Include="Formats\Probably.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Inserter.cs" />
     <Compile Include="Options.cs" />

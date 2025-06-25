@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using ZetaLongPaths;
 using ZetaLongPaths.Native;
-using static GammaCopy.SevenZipExtractorHelpers;
 using FileAccess = ZetaLongPaths.Native.FileAccess;
 using FileShare = ZetaLongPaths.Native.FileShare;
 
@@ -22,7 +21,8 @@ namespace GammaCopy.Formats
         {
             Unknown,
             SMDB,
-            Logiqx
+            Logiqx,
+            ClrmamePro
         }
         public string fpDatFile { get; set; }
         private static readonly bool UseOverlappedAsyncIO = false;
@@ -95,9 +95,9 @@ namespace GammaCopy.Formats
                         DatFileType type = DatFileType.Unknown;
                         if (type == DatFileType.Unknown)
                         {
-                            if (ProbablyXML(lines))
+                            if (Probably.ProbablyXML(lines))
                             {
-                                if (ProbablyLogiqx(lines))
+                                if (Probably.ProbablyLogiqx(lines))
                                 {
                                     type = DatFileType.Logiqx;
                                 }
@@ -105,7 +105,14 @@ namespace GammaCopy.Formats
                         }
                         if (type == DatFileType.Unknown)
                         {
-                            if (ProbablySMDB(lines))
+                            if (Probably.ProbablyClrmamePro(lines))
+                            {
+                                type = DatFileType.ClrmamePro;
+                            }
+                        }
+                        if (type == DatFileType.Unknown)
+                        {
+                            if (Probably.ProbablySMDB(lines))
                             {
                                 type = DatFileType.SMDB;
                             }
@@ -115,8 +122,11 @@ namespace GammaCopy.Formats
                             Console.WriteLine($"{Path.GetFileName(file.Key)} type is {type}");
                             switch (type)
                             {
+                                case DatFileType.ClrmamePro:
+                                    Entries[file.Key].AddRange(ClrmamePro.ToSMDB(ClrmamePro.Parse(lines)));
+                                    break;
                                 case DatFileType.SMDB:
-                                    Entries[file.Key].AddRange(ParseSMDB(lines));
+                                    Entries[file.Key].AddRange(SMDBEntry.ParseSMDB(lines));
                                     break;
                                 case DatFileType.Logiqx:
                                     Entries[file.Key].AddRange(ParseLogiqx(st));
@@ -155,82 +165,8 @@ namespace GammaCopy.Formats
             }
             return entries;
         }
-        private List<SMDBEntry> ParseSMDB(string[] lines)
-        {
-            List<SMDBEntry> entries = new List<SMDBEntry>();
-            int index = 0;
-            foreach (string line in lines)
-            {
-                Match match = Regex.Match(line, @"([a-fA-F0-9]+)\t([^\t]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)");
-                if (match.Success)
-                {
-                    SMDBEntry entry = new SMDBEntry
-                    {
-                        Index = index,
-                        SHA256 = match.Groups[1].Value.ToLower(),
-                        Path = match.Groups[2].Value,
-                        SHA1 = match.Groups[3].Value.ToLower(),
-                        MD5 = match.Groups[4].Value.ToLower(),
-                        CRC32 = match.Groups[5].Value.ToLower()
-                    };
-                    index++;
-                    entries.Add(entry);
-                }
-            }
-            return entries;
-        }
-        private bool ProbablyLogiqx(string[] lines)
-        {
-            int i = 0;
-            foreach (string line in lines)
-            {
-                if (line.ToUpper().Contains("http://www.logiqx.com/Dats/datafile.dtd".ToUpper()))
-                {
-                    return true;
-                }
-                i++;
-                if (i > 4)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-        private bool ProbablyXML(string[] lines)
-        {
-            int i = 0;
-            foreach (string line in lines)
-            {
-                if (line.ToUpper().Contains("<?xml version=".ToUpper()))
-                {
-                    return true;
-                }
-                i++;
-                if (i > 4)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-        private bool ProbablySMDB(string[] lines)
-        {
-            int i = 0;
-            foreach (string line in lines)
-            {
-                Match match = Regex.Match(line, @"([a-fA-F0-9]+)\t([^\t]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)");
-                if (match.Success)
-                {
-                    return true;
-                }
-                i++;
-                if (i > 10)
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
+
+
         private KeyValuePair<string, byte[]> GetPlainFile(string fpDat, FileStream stream)
         {
             KeyValuePair<string, byte[]> filsBytes = new KeyValuePair<string, byte[]>();

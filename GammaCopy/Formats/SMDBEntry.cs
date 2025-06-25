@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace GammaCopy.Formats
 {
@@ -16,5 +17,31 @@ namespace GammaCopy.Formats
         }
 
         public List<Result> Results { get; set; } = new List<Result>();
+
+
+        public static List<SMDBEntry> ParseSMDB(string[] lines)
+        {
+            List<SMDBEntry> entries = new List<SMDBEntry>();
+            int index = 0;
+            foreach (string line in lines)
+            {
+                Match match = Regex.Match(line, @"([a-fA-F0-9]+)\t([^\t]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)\t([a-fA-F0-9]+)");
+                if (match.Success)
+                {
+                    SMDBEntry entry = new SMDBEntry
+                    {
+                        Index = index,
+                        SHA256 = match.Groups[1].Value.ToLower(),
+                        Path = match.Groups[2].Value,
+                        SHA1 = match.Groups[3].Value.ToLower(),
+                        MD5 = match.Groups[4].Value.ToLower(),
+                        CRC32 = match.Groups[5].Value.ToLower()
+                    };
+                    index++;
+                    entries.Add(entry);
+                }
+            }
+            return entries;
+        }
     }
 }
