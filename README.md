@@ -2,7 +2,7 @@
 
 An `.SMDB` file, template file, sometimes called a layout, is like a `.ZIP` file but without the actual data.  Save folder and file structure to a template file.  Restore files and folder structure based on a given template and the existing available source material.  GammaCopy has a Highly optimized metadata caching system, incorruptible, with deep archive traversal - for example it will find a file buried several layers deep in a `.RAR` within a `.ZIP` from an `.ISO` inside a `.7z`, and so on, and it will store its hash in an `SQLite` database so that if the data is ever needed GammaCopy has recorded the source material's existence and exactly how to retrieve it.
 
-Template files allows rebuilding files and file organization, and sharing and archiving of file metadata by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.  Templates can be shared without sharing the actual data.
+Template files allow rebuilding files and file organization, and sharing and archiving of file metadata by use of [checksums](https://en.wikipedia.org/wiki/Checksum).  Depending on what data is available, they can be used to restore fully or partially a copy of the original file and folder layout.  Templates can be shared without sharing the actual data.
 
 
 Template Support: 
@@ -57,6 +57,8 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 `-n, --containers` Write output to `<outputpath>/<templatefilename>/`
 
+`-p, --coverage-folder` Override parent folder in which to store the coverage information file(s).
+
 `-f, --coverage-hybrid-to-file` Gather entries not in output location or metadata cache. Output coverage information to file.
 
 `-c, --coverage-hybrid-to-stdout` Gather entries not in output location or metadata cache. Output coverage summary to console.
@@ -90,7 +92,7 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 ## Getting Started
 
-The first thing you will want to do is have GammaCopy index, or analyze all of your actual files, called the "source material".  The great thing about all this is that the source material need not be organized at all!  The organization comes from the templates.  GammaCopy will by default recursively delve as deep as it can within supported unencrypted filetypes, ISOs, RARs, 7z, even EXEs.  The analysis process duration depends on system resources, network conditions, and how extensive your source material is.  To begin the process, issue the following command:
+The first thing you will want to do is have GammaCopy index, or analyze all of your actual files, called the "source material".  The great thing about all this is that the source material need not be organized at all!  The organization can come from the templates.  Organized data can also be used to generate templates, but for now you will probably want to scan your source material.  GammaCopy will by default recursively delve as deep as it can within supported unencrypted filetypes, ISOs, RARs, 7z, even EXEs.  The analysis process duration depends on system resources, network conditions, and how extensive your source material is.  To begin the process, issue the following command:
 
 ```
 C:\Users\User>E:\projects\GammaCopy\GammaCopy\bin\Debug\GammaCopy.exe index -s Z:\emulation
