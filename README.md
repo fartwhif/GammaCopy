@@ -57,6 +57,8 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 `-n, --containers` Write output to `<outputpath>/<templatefilename>/`
 
+`-p, --coverage-folder` Override parent folder in which to store the coverage information file(s).
+
 `-f, --coverage-hybrid-to-file` Gather entries not in output location or metadata cache. Output coverage information to file.
 
 `-c, --coverage-hybrid-to-stdout` Gather entries not in output location or metadata cache. Output coverage summary to console.
