@@ -203,7 +203,7 @@ namespace GammaCopy
                 Log($"Using: {smdb}");
                 string jobName = Path.GetFileNameWithoutExtension(smdb);
                 string RealOutputPath = (opts.Containers) ? Path.Combine(opts.OutputPath, jobName) : opts.OutputPath;
-                string coverageFilePath = Path.Combine(RealOutputPath, jobName + ".coverage.txt");
+                string coverageFilePath = string.IsNullOrWhiteSpace(opts.CoverageFolder) ? Path.Combine(RealOutputPath, jobName + ".coverage.txt") : Path.Combine(opts.CoverageFolder, jobName + ".coverage.txt");
                 List<SMDBEntry> allEntries = allJobs[smdb];
                 Stopwatch sw3 = Stopwatch.StartNew();
                 sw1 = Stopwatch.StartNew();

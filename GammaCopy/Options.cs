@@ -39,6 +39,9 @@ prepend-last-folder: {PrependLastFolder}";
         [Option('n', "containers", Required = false, HelpText = "Write output to <outputpath>/<databasefilename>/")]
         public bool Containers { get; set; }
 
+        [Option('p', "coverage-folder", Required = false, HelpText = "Override parent folder in which to store the coverage information file(s).")]
+        public string CoverageFolder { get; set; }
+
         [Option('f', "coverage-hybrid-to-file", Required = false, HelpText = "Gather entries not in output location or metadata cache. Output coverage information to file.")]
         public bool CoverageHybridFile { get; set; }
 
@@ -82,6 +85,7 @@ output: {OutputPath}
 containers: {Containers}
 delete-extras: {DeleteExtraFiles}
 delete-empty-folders: {DeleteEmptyFolders}
+coverage-folder: {CoverageFolder}
 coverage-hybrid-to-file: {CoverageHybridFile}
 coverage-hybrid-to-stdout:  {CoverageHybridStdout}
 coverage-existant-to-file:  {CoverageExistantFile}
