@@ -1,4 +1,6 @@
 ﻿using DiscUtils.Iso9660;
+using SharpCompress.Archives;
+
 //using SharpCompress.Archives;
 using System;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ namespace GammaCopy
     internal class Result
     {
         //public IArchive Archive2 { get; set; }
-        public SevenZip.SevenZipExtractor Archive { get; set; }
+        public IArchive Archive { get; set; }
         public CDReader Cd { get; set; }
         public Result Parent { get; set; }
         public List<Result> Children { get; set; } = new List<Result>();
@@ -26,6 +28,7 @@ namespace GammaCopy
         public Tuple<long, long> Md5Split { get; set; }
         public List<Result> Files { get; set; } = new List<Result>();
         public Stream FileStream { get; set; } = null;
+        public Exception ex { get; set; } = null;
         public override string ToString()
         {
             return Path;

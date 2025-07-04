@@ -1,11 +1,10 @@
 ﻿using DiscUtils.Iso9660;
 using Microsoft.Win32.SafeHandles;
-using SevenZip;
+using SharpCompress.Archives;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using ZetaLongPaths;
 using ZetaLongPaths.Native;
@@ -190,20 +189,19 @@ namespace GammaCopy.Formats
             List<KeyValuePair<string, byte[]>> filsBytes = new List<KeyValuePair<string, byte[]>>();
             try
             {
-                using (SevenZipExtractor arc = new SevenZipExtractor(stream, fmt))
+                using (var archive = ArchiveFactory.Open(stream))
                 {
-                    arc.EventSynchronization = EventSynchronizationStrategy.AlwaysAsynchronous;
-                    MemoryStream ms = null;
-                    arc.ExtractFiles((ExtractFileCallbackArgs efca) =>
+                    foreach (var entry in archive.Entries)
                     {
-                        if (ms == null)
+                        if (!entry.IsDirectory)
                         {
-                            ms = new MemoryStream();
+                            using (var ms = new MemoryStream())
+                            {
+                                entry.WriteTo(ms);
+                                filsBytes.Add(new KeyValuePair<string, byte[]>(Path.GetFileName(entry.Key), ms.ToArray()));
+                            }
                         }
-                        arc.ExtractFile(efca.ArchiveFileInfo.Index, ms);
-                        filsBytes.Add(new KeyValuePair<string, byte[]>(Path.GetFileName(efca.ArchiveFileInfo.FileName), ms.ToArray()));
-                        ms.Dispose();
-                    }, null, null, null);
+                    }
                 }
             }
             catch
