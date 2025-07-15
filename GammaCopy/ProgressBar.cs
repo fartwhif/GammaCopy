@@ -1,8 +1,10 @@
 ﻿namespace GammaCopy
 {
     using System;
-    using System.Text;
     using System.Threading;
+
+
+
     public interface IProgress<in T>
     {
         // Summary:
@@ -31,6 +33,10 @@
         public bool disposed = false;
         private int animationIndex = 0;
 
+        private long BarWrites = 0;
+
+        private long barId = 0;
+
         public ProgressBar()
         {
             timer = new Timer(TimerHandler);
@@ -40,6 +46,7 @@
             // Otherwise, we'll end up with a lot of garbage in the target file.
             if (!ConsoleEx.IsOutputRedirected)
             {
+                barId = Global.CreateBar();
                 ResetTimer();
             }
         }
@@ -53,8 +60,11 @@
 
         private void TimerHandler(object state)
         {
+            var p = Interlocked.Increment(ref BarWrites);
             lock (timer)
             {
+
+
                 if (disposed)
                 {
                     return;
@@ -74,30 +84,12 @@
 
         private void UpdateText(string text)
         {
-            // Get length of common portion
-            int commonPrefixLength = 0;
-            int commonLength = Math.Min(currentText.Length, text.Length);
-            while (commonPrefixLength < commonLength && text[commonPrefixLength] == currentText[commonPrefixLength])
-            {
-                commonPrefixLength++;
-            }
-
-            // Backtrack to the first differing character
-            StringBuilder outputBuilder = new StringBuilder();
-            outputBuilder.Append('\b', currentText.Length - commonPrefixLength);
-
-            // Output new suffix
-            outputBuilder.Append(text.Substring(commonPrefixLength));
-
-            // If the new text is shorter than the old one: delete overlapping characters
             int overlapCount = currentText.Length - text.Length;
             if (overlapCount > 0)
             {
-                outputBuilder.Append(' ', overlapCount);
-                outputBuilder.Append('\b', overlapCount);
+                text += new string(' ', overlapCount);
             }
-
-            Console.Write(outputBuilder);
+            Global.BarWrite(barId, text);
             currentText = text;
         }
 
@@ -111,7 +103,9 @@
             lock (timer)
             {
                 disposed = true;
-                UpdateText(string.Empty);
+                if (BarWrites > 0)
+                    UpdateText(string.Empty);
+                Global.DestroyBar(barId);
             }
         }
     }

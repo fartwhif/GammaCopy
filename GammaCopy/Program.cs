@@ -4,6 +4,7 @@ using DiscUtils.Iso9660;
 using GammaCopy.Formats;
 using Microsoft.Win32.SafeHandles;
 using SharpCompress.Archives;
+using SharpCompress.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ using System.Threading.Tasks;
 using ZetaLongPaths;
 using ZetaLongPaths.Native;
 using static GammaCopy.Extensions;
+using static GammaCopy.Formats.ClrmamePro;
 using FileAccess = ZetaLongPaths.Native.FileAccess;
 using FileShare = ZetaLongPaths.Native.FileShare;
 
@@ -112,7 +114,7 @@ namespace GammaCopy
                 int numerator = 0;
                 foreach (Result fil in allFiles)
                 {
-                    progress.blurb = $"{numerator.ToString().PudLeft(4)} / {allFiles.Count} {fil.Path.Tail(40)}";
+                    progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {allFiles.Count:N0} {fil.Path.Tail(40)}";
                     SMDBEntry entry = new SMDBEntry();
                     OpenFile(fil);
                     using (MD5 md5 = MD5.Create())
@@ -369,7 +371,7 @@ namespace GammaCopy
                         {
                             continue;
                         }
-                        progress.blurb = $"{numerator.ToString().PudLeft(4)} / {numResults} {entry.Path.Tail(40)}";
+                        progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {numResults:N0} {entry.Path.Tail(40)}";
                         progress.Report((double)numerator / numResults);
                         numerator++;
                         if (!entry.Path.StartsWith(outputPath))
@@ -414,7 +416,7 @@ namespace GammaCopy
                         {
                             try
                             {
-                                progress.blurb = $"{numerator.ToString().PudLeft(4)} / {numResults} {entry.Path.Tail(40)}";
+                                progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {numResults:N0} {entry.Path.Tail(40)}";
                                 progress.Report((double)numerator / numResults);
                                 numerator++;
                                 string entryDir = Path.Combine(outputPath, ZlpPathHelper.GetDirectoryPathNameFromFilePath(entry.Path.Replace('/', '\\')));
@@ -498,7 +500,7 @@ namespace GammaCopy
                         //foreach (SMDBEntry entry in entries)
                         //{
                         SMDBEntry entry = entries[entryIndex];
-                        progress.blurb = $"{numerator.ToString().PudLeft(4)} / {entries.Count} {entry.Path.Tail(40)}";
+                        progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {entries.Count:N0} {entry.Path.Tail(40)}";
                         progress.Report((double)numerator / entries.Count);
                         numerator++;
                         string entryDir = Path.Combine(outputPath, ZlpPathHelper.GetDirectoryPathNameFromFilePath(entry.Path));
@@ -803,193 +805,39 @@ namespace GammaCopy
         }
         private static List<Result> GetAllChecksums(Result result)
         {
-            string ext = Path.GetExtension(result.Path).ToLower().Trim();
-            if (ext == ".iso")
+            using (ProgressBar progress = new ProgressBar())
             {
-                try
+                int numerator = 0;
+                ArchiveReader.Read(result.Path, result.FileStream, (archive) =>
                 {
-                    CDReader cd = new CDReader(result.FileStream, true);
-                    List<string> cdfilePaths = cd.GetAllCDFilePaths("\\");
-                    foreach (string cdfile in cdfilePaths)
+                    numerator++;
+                    progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {archive.ArchiveEntryCount:N0} {archive.ToString().Tail(40)}";
+                    progress.Report(archive.ArchiveEntryCount > 0 ? ((double)numerator / archive.ArchiveEntryCount) : 100);
+                    try
                     {
-                        Result res = new Result
+                        Result res2 = new Result()
                         {
-                            Path = cdfile
+                            ArchiveIndex = archive.ArchiveIndex,
+                            FileStream = archive.Stream,
+                            Path = archive.Name,
+                            Created = archive.Created,
+                            Modified = archive.Modified,
+                            Length = archive.Size
                         };
                         using (MD5 md5 = MD5.Create())
                         {
-                            using (Stream fileStream = cd.OpenFile(cdfile, FileMode.Open))
-                            {
-                                byte[] hash = md5.ComputeHash(fileStream);
-                                res.Md5 = hash.AsHex();
-                                res.Md5Split = hash.Md5Split();
-                                res.FileStream = fileStream;
-                                res.Length = fileStream.Length;
-                                res.Modified = cd.GetLastWriteTime(cdfile);
-                                res.Created = cd.GetCreationTime(cdfile);
-                                GetAllChecksums(res);
-                                result.Files.Add(res);
-                                res.FileStream.Dispose();
-                                res.FileStream = null;
-                            }
+                            res2.FileStream.Seek(0, SeekOrigin.Begin);
+                            byte[] hash = md5.ComputeHash(res2.FileStream);
+                            res2.Md5 = hash.AsHex();
+                            res2.Md5Split = hash.Md5Split();
+                            GetAllChecksums(res2);
+                            res2.FileStream.Dispose();
+                            res2.FileStream = null;
+                            result.Files.Add(res2);
                         }
                     }
-                }
-                catch { }
-            }
-            else
-            {
-                InArchiveFormat? sevenZipFormat = ext.FindSevenZipFormat(result.FileStream).ConvertSevenZipExtractorToSevenZipSharpFormat();
-                if (sevenZipFormat != null)
-                {
-                    result.FileStream.Seek(0, SeekOrigin.Begin);
-                    try
-                    {
-                        using (var archive = ArchiveFactory.Open(result.FileStream))
-                        {
-                            foreach (var fd in archive.Entries)
-                            {
-                                if (!fd.IsDirectory)
-                                {
-                                    using (var ms = new MemoryStream())
-                                    {
-                                        fd.WriteTo(ms);
-                                        Result res = new Result()
-                                        {
-                                            ArchiveIndex = fd.VolumeIndexFirst,
-                                            FileStream = ms,
-                                            Path = fd.Key.Replace("/", "\\"),
-                                            Created = fd.CreatedTime ?? DateTime.MinValue,
-                                            Modified = fd.LastModifiedTime ?? DateTime.MinValue,
-                                            Length = fd.Size
-                                        };
-                                        if (res.Created == DateTime.MinValue && res.Modified != DateTime.MinValue)
-                                        {
-                                            res.Created = res.Modified;
-                                        }
-                                        else if (res.Created != DateTime.MinValue && res.Modified == DateTime.MinValue)
-                                        {
-                                            res.Modified = res.Created;
-                                        }
-                                        using (MD5 md5 = MD5.Create())
-                                        {
-                                            res.FileStream.Seek(0, SeekOrigin.Begin);
-                                            byte[] hash = md5.ComputeHash(res.FileStream);
-                                            res.Md5 = hash.AsHex();
-                                            res.Md5Split = hash.Md5Split();
-                                            GetAllChecksums(res);
-                                            //Global.IncrementCounterAndDisplay();
-                                            res.FileStream.Dispose();
-                                            res.FileStream = null;
-                                            result.Files.Add(res);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-                        //using (SevenZipExtractor arc = new SevenZipExtractor(result.FileStream, sevenZipFormat.Value))
-                        //{
-                        //    foreach (var fd in arc.ArchiveFileData)
-                        //    {
-                        //        if (!fd.IsDirectory/* && args.FileInfo.FileName != "[no name]"*/)
-                        //        {
-                        //            using (MemoryStream ms = new MemoryStream())
-                        //            {
-                        //                if (arc.IsSolid)
-                        //                {
-                        //                    arc.ExtractFileSolid((int)fd.Index, ms);
-                        //                }
-                        //                else
-                        //                {
-                        //                    arc.ExtractFile(fd.Index, ms);
-                        //                }
-
-
-                        //                Result res = new Result()
-                        //                {
-                        //                    ArchiveIndex = fd.Index,
-                        //                    FileStream = ms,
-                        //                    Path = fd.FileName,
-                        //                    Created = fd.CreationTime,
-                        //                    Modified = fd.LastWriteTime,
-                        //                    Length = (long)fd.Size
-                        //                };
-                        //                using (MD5 md5 = MD5.Create())
-                        //                {
-                        //                    res.FileStream.Seek(0, SeekOrigin.Begin);
-                        //                    byte[] hash = md5.ComputeHash(res.FileStream);
-                        //                    res.Md5 = hash.AsHex();
-                        //                    res.Md5Split = hash.Md5Split();
-                        //                    GetAllChecksums(res);
-                        //                    //Global.IncrementCounterAndDisplay();
-                        //                    res.FileStream.Dispose();
-                        //                    res.FileStream = null;
-                        //                    result.Files.Add(res);
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-
-                        //}
-
-                        //using (SevenZipExtractor arc = new SevenZipExtractor(result.FileStream, sevenZipFormat.Value))
-                        //{
-                        //    arc.EventSynchronization = EventSynchronizationStrategy.AlwaysAsynchronous;
-                        //    OutStreamWrapper osw = null;
-                        //    MemoryStream ms = null;
-                        //    Func<uint, OutStreamWrapper> getStream = (index) =>
-                        //     {
-                        //         ms = new MemoryStream();
-                        //         osw = new OutStreamWrapper(ms, false);
-                        //         osw.BytesWritten += (source, e) =>
-                        //         {
-                        //             //bw.Write(e.Value);
-                        //         };
-                        //         return osw;
-                        //     };
-                        //    Action<FileInfoEventArgs> fileExtractStart = new Action<FileInfoEventArgs>((args) =>
-                        //    {
-
-                        //    });
-                        //    Action<FileInfoEventArgs> fileExtractComplete = new Action<FileInfoEventArgs>((args) =>
-                        //    {
-                        //        if (ms != null && !args.FileInfo.IsDirectory/* && args.FileInfo.FileName != "[no name]"*/)
-                        //        {
-                        //            Result res = new Result()
-                        //            {
-                        //                ArchiveIndex = args.FileInfo.Index,
-                        //                FileStream = ms,
-                        //                Path = args.FileInfo.FileName,
-                        //                Created = args.FileInfo.CreationTime,
-                        //                Modified = args.FileInfo.LastWriteTime,
-                        //                Length = (long)args.FileInfo.Size
-                        //            };
-                        //            using (MD5 md5 = MD5.Create())
-                        //            {
-                        //                res.FileStream.Seek(0, SeekOrigin.Begin);
-                        //                byte[] hash = md5.ComputeHash(res.FileStream);
-                        //                res.Md5 = hash.AsHex();
-                        //                res.Md5Split = hash.Md5Split();
-                        //                GetAllChecksums(res);
-                        //                //Global.IncrementCounterAndDisplay();
-                        //                res.FileStream.Dispose();
-                        //                res.FileStream = null;
-                        //                result.Files.Add(res);
-                        //            }
-                        //        }
-                        //    });
-                        //    arc.ExtractFiles(null, getStream, fileExtractStart, fileExtractComplete);
-
-
-
-                        //}
-                    }
-                    catch
-                    {
-                    }
-                }
+                    catch { }
+                });
             }
             return result.Files;
         }
@@ -1394,7 +1242,7 @@ namespace GammaCopy
                 Result file = files[a];
                 if (progress != null)
                 {
-                    progress.blurb = $"{a.ToString().PudLeft(4)} / {files.Count}";
+                    progress.blurb = $"{a.ToString("N0").PudLeft(4)} / {files.Count:N0}";
                 }
                 if (file.PathMd5Split == null)
                 {
@@ -1442,12 +1290,14 @@ namespace GammaCopy
 
                         index++;
                         numerator++;
+                        progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {files.Count:N0} {file.Path.Tail(40)}";
+                        progress.Report(numerator / files.Count);
+
                         (new Thread(() =>
                         {
                             using (MD5 md5 = MD5.Create())
                             {
-                                progress.blurb = $"{numerator.ToString().PudLeft(4)} / {files.Count} {file.Path.Tail(40)}";
-
+                              
                                 try
                                 {
                                     SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(file.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
@@ -1479,7 +1329,7 @@ namespace GammaCopy
                                         }
                                         catch (Exception ex) { }
                                     }
-                                    progress.Report(numerator / files.Count);
+                                   
                                 }
                             }
                             Interlocked.Decrement(ref numThreads);
@@ -1534,10 +1384,11 @@ namespace GammaCopy
                 files.ForEach(k =>
                 {
                     numerator++;
+                    progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {files.Count:N0} {k.Path.Tail(40)}";
+                    progress.Report(numerator / files.Count);
+                  
                     using (MD5 md5 = MD5.Create())
                     {
-                        progress.blurb = $"{numerator.ToString().PudLeft(4)} / {files.Count} {k.Path.Tail(40)}";
-
                         SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(k.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
                         using (FileStream stream = new FileStream(safeFileHandle, System.IO.FileAccess.Read, 65536, UseOverlappedAsyncIO))
                         {
@@ -1549,7 +1400,7 @@ namespace GammaCopy
                             {
                                 GetAllChecksums(k);
                             }
-                            progress.Report(numerator / files.Count);
+                        
                             k.FileStream.Dispose();
                             k.FileStream = null;
                         }

@@ -134,12 +134,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArchiveReader.cs" />
     <Compile Include="ConsoleEx.cs" />
     <Compile Include="Coverage.cs" />
     <Compile Include="CRC32.cs" />
     <Compile Include="Deleter.cs" />
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FileFormatHelpers.cs" />
     <Compile Include="Formats\ClrmamePro.cs" />
     <Compile Include="Formats\DatParser.cs" />
     <Compile Include="Formats\Logiqx.cs" />
