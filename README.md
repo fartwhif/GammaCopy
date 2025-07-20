@@ -11,6 +11,8 @@ Template Support:
 | X | X | [SourceMaterial](https://github.com/frederic-mahe/Hardware-Target-Game-Database)  |
 | X |   | [Logiqx](https://github.com/Logiqx/logiqx-dev)  |
 | X |   | [clrmamepro](https://mamedev.emulab.it/clrmamepro/binaries/readme.html)  |
+| X |   | [No-Intro](https://datomatic.no-intro.org/)  |
+
 
 
 License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKit/blob/master/CSharp/DamienG.Library/Security/Cryptography/Crc32.cs)
