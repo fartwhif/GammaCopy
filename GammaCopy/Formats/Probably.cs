@@ -50,6 +50,23 @@ namespace GammaCopy.Formats
             }
             return false;
         }
+        public static bool ProbablyNoIntro(string[] lines)
+        {
+            int i = 0;
+            foreach (string line in lines)
+            {
+                if (line.ToUpper().Contains("https://datomatic.no-intro.org/stuff/schema_nointro_datfile".ToUpper()))
+                {
+                    return true;
+                }
+                i++;
+                if (i > 4)
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
         public static bool ProbablyXML(string[] lines)
         {
             int i = 0;

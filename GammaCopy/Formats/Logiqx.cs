@@ -36,6 +36,12 @@ namespace GammaCopy.Formats
 
             [XmlElement(ElementName = "url")]
             public string Url { get; set; }
+
+            [XmlElement(ElementName = "id")]
+            public int Id { get; set; }
+
+            [XmlElement(ElementName = "clrmamepro")]
+            public Clrmamepro Clrmamepro { get; set; }
         }
 
         [XmlRoot(ElementName = "rom")]
@@ -45,9 +51,6 @@ namespace GammaCopy.Formats
             [XmlAttribute(AttributeName = "name")]
             public string Name { get; set; }
 
-            [XmlAttribute(AttributeName = "size")]
-            public int Size { get; set; }
-
             [XmlAttribute(AttributeName = "crc")]
             public string Crc { get; set; }
 
@@ -56,6 +59,42 @@ namespace GammaCopy.Formats
 
             [XmlAttribute(AttributeName = "sha1")]
             public string Sha1 { get; set; }
+
+            [XmlAttribute(AttributeName = "sha256")]
+            public string Sha256 { get; set; }
+
+            [XmlAttribute(AttributeName = "status")]
+            public string Status { get; set; }
+
+            [XmlAttribute(AttributeName = "mia")]
+            public string Mia { get; set; }
+
+
+            [XmlIgnore]
+            public long? Size { get; set; }
+            [XmlAttribute(AttributeName = "size")]
+            public string SizeSerializable
+            {
+                get
+                {
+                    if (Size != null)
+                    {
+                        return Size.ToString();
+                    }
+                    else
+                    {
+                        return "";
+                    }
+                }
+                set
+                {
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        Size = long.Parse(value);
+                    }
+                }
+            }
+
         }
 
         [XmlRoot(ElementName = "game")]
@@ -67,14 +106,28 @@ namespace GammaCopy.Formats
             [XmlElement(ElementName = "description")]
             public string Description { get; set; }
 
+            [XmlElement(ElementName = "game_id")]
+            public string GameId { get; set; }
+
             [XmlElement(ElementName = "rom")]
             public List<Rom> Rom { get; set; }
 
             [XmlAttribute(AttributeName = "name")]
             public string Name { get; set; }
 
+            [XmlAttribute(AttributeName = "id")]
+            public int Id { get; set; }
+
             [XmlText]
             public string Text { get; set; }
+        }
+
+        [XmlRoot(ElementName = "clrmamepro")]
+        public class Clrmamepro
+        {
+
+            [XmlAttribute(AttributeName = "forcenodump")]
+            public string Forcenodump { get; set; }
         }
 
         [XmlRoot(ElementName = "datafile")]

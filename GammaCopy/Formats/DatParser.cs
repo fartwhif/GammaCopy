@@ -1,10 +1,12 @@
 ﻿using DiscUtils.Iso9660;
 using Microsoft.Win32.SafeHandles;
 using SharpCompress.Archives;
+using SharpCompress.Common.Arc;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Xml.Serialization;
 using ZetaLongPaths;
 using ZetaLongPaths.Native;
@@ -21,6 +23,7 @@ namespace GammaCopy.Formats
             Unknown,
             SMDB,
             Logiqx,
+            NoIntro,
             ClrmamePro
         }
         public string fpDatFile { get; set; }
@@ -43,38 +46,44 @@ namespace GammaCopy.Formats
         }
         public void Parse()
         {
+            List<KeyValuePair<string, byte[]>> filsBytes = new List<KeyValuePair<string, byte[]>>();
+
             SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(fpDatFile, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
             using (FileStream stream = new FileStream(safeFileHandle, System.IO.FileAccess.Read, 65536, UseOverlappedAsyncIO))
             {
-                List<KeyValuePair<string, byte[]>> filsBytes = null;
                 string ext = Path.GetExtension(fpDatFile).ToLower().Trim();
-                if (ext == ".iso")
-                {
-                    Console.WriteLine($"{Path.GetFileName(fpDatFile)} type is ISO");
-                    filsBytes = GetFilesFromISO(stream);
-                    stream.Seek(0, SeekOrigin.Begin);
-                }
-                if (filsBytes == null)
-                {
-                    InArchiveFormat? sevenZipFormat = ext.FindSevenZipFormat(stream).ConvertSevenZipExtractorToSevenZipSharpFormat();
-                    stream.Seek(0, SeekOrigin.Begin);
-                    if (sevenZipFormat != null)
-                    {
-                        Console.WriteLine($"{Path.GetFileName(fpDatFile)} type is {sevenZipFormat}");
-                        filsBytes = GetFilesFromArchive(stream, sevenZipFormat.Value);
-                    }
-                }
-                if (filsBytes == null)
+                var archiveFormat = ext.FindFileFormat(stream).GetSupportedFileFormat();
+
+                if (archiveFormat == null)
                 {
                     Console.WriteLine($"{Path.GetFileName(fpDatFile)} is a plain file");
-                    filsBytes = new List<KeyValuePair<string, byte[]>>();
                     filsBytes.Add(GetPlainFile(fpDatFile, stream));
                     stream.Seek(0, SeekOrigin.Begin);
                 }
-                if (filsBytes != null)
+                else
                 {
-                    Parse2(filsBytes);
+                    Console.WriteLine($"{Path.GetFileName(fpDatFile)} type is {archiveFormat}");
+                    using (ProgressBar progress = new ProgressBar())
+                    {
+                        int numerator = 0;
+                        ArchiveReader.Read(fpDatFile, stream, (archive) =>
+                        {
+                            numerator++;
+                            progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {archive.ArchiveEntryCount:N0} {archive.ToString().Tail(40)}";
+                            progress.Report(archive.ArchiveEntryCount > 0 ? ((double)numerator / archive.ArchiveEntryCount) : 100);
+                            try
+                            {
+                                using (var ms = new MemoryStream())
+                                {
+                                    archive.Stream.CopyTo(ms);
+                                    filsBytes.Add(new KeyValuePair<string, byte[]>(Path.GetFileName(archive.Name), ms.ToArray()));
+                                }
+                            }
+                            catch { }
+                        });
+                    }
                 }
+                Parse2(filsBytes);
             }
         }
         private void Parse2(List<KeyValuePair<string, byte[]>> files)
@@ -99,6 +108,10 @@ namespace GammaCopy.Formats
                                 if (Probably.ProbablyLogiqx(lines))
                                 {
                                     type = DatFileType.Logiqx;
+                                }
+                                if (Probably.ProbablyNoIntro(lines))
+                                {
+                                    type = DatFileType.NoIntro;
                                 }
                             }
                         }
@@ -128,6 +141,7 @@ namespace GammaCopy.Formats
                                     Entries[file.Key].AddRange(SMDBEntry.ParseSMDB(lines));
                                     break;
                                 case DatFileType.Logiqx:
+                                case DatFileType.NoIntro:
                                     Entries[file.Key].AddRange(ParseLogiqx(st));
                                     break;
                             }
@@ -159,7 +173,7 @@ namespace GammaCopy.Formats
                         {
                             Index = index,
                             SHA256 = null,
-                            Path = rom.Name,
+                            Path = Path.Combine(game.Name, rom.Name),
                             SHA1 = rom.Sha1,
                             MD5 = rom.Md5,
                             CRC32 = rom.Crc
