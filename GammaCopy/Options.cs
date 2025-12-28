@@ -26,6 +26,21 @@ parsed-output-destination: {OutputPath}
 global-prepend: {GlobalPrepend}
 prepend-last-folder: {PrependLastFolder}";
         }
+
+        public virtual void Clean()
+        {
+            OutputPath = OutputPath?.Trim();
+            if (Folders != null)
+            {
+                List<string> f = new List<string>();
+                f.AddRange(Folders);
+                for (int i = 0; i < f.Count; i++)
+                {
+                    f[i] = f[i].Trim();
+                }
+                Folders = f.ToArray();
+            }
+        }
     }
     [Verb("build", HelpText = "Check coverage or build output based on DB files of various types (currently only supports SMDB).")]
     internal class BuildOptions
@@ -94,7 +109,22 @@ coverage-meta-to-file:  {CoverageMetadataFile}
 coverage-meta-to-stdout:  {CoverageMetadataStdout}
 stdout-coverage-full: {StdoutCoverageFull}";
         }
+        public virtual void Clean()
+        {
+            OutputPath = OutputPath?.Trim();
+            CoverageFolder = CoverageFolder?.Trim();
 
+            if (SMDBs != null)
+            {
+                List<string> f = new List<string>();
+                f.AddRange(SMDBs);
+                for (int i = 0; i < f.Count; i++)
+                {
+                    f[i] = f[i].Trim();
+                }
+                SMDBs = f.ToArray();
+            }
+        }
     }
 
     [Verb("index", HelpText = "Gather metadata for the source locations and save it in the metadata cache.")]
@@ -115,6 +145,19 @@ stdout-coverage-full: {StdoutCoverageFull}";
 source(s): {((SourcePaths.Any()) ? SourcePaths.Aggregate((a, b) => a + " | " + b) : "")}
 onebyone: {Sequential}
 disable-archive-traversal: {DisableArchiveTraversal}";
+        }
+        public virtual void Clean()
+        {
+            if (SourcePaths != null)
+            {
+                List<string> f = new List<string>();
+                f.AddRange(SourcePaths);
+                for (int i = 0; i < f.Count; i++)
+                {
+                    f[i] = f[i].Trim();
+                }
+                SourcePaths = f.ToArray();
+            }
         }
     }
 }

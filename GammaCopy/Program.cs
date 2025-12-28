@@ -94,6 +94,7 @@ namespace GammaCopy
         }
         private static void Parse(ParseOptions opts)
         {
+            opts.Clean();
             Log(opts.ToString());
             Stopwatch sw1 = Stopwatch.StartNew();
             List<SMDBEntry> entries = new List<SMDBEntry>();
@@ -163,6 +164,7 @@ namespace GammaCopy
 
         private static void Build(BuildOptions opts)
         {
+            opts.Clean();
             Log(opts.ToString());
             if (string.IsNullOrWhiteSpace(opts.OutputPath) && opts.CoverageExistantFile)
             {
@@ -551,9 +553,11 @@ namespace GammaCopy
                                         }
                                         else
                                         {
-                                            destFil.WriteAllBytes(new byte[] { });
-                                            destFil.LastWriteTime = _leaf.Modified;
-                                            destFil.CreationTime = _leaf.Created;
+                                            //don't create an empty file, it causes confusion.
+
+                                            //destFil.WriteAllBytes(new byte[] { });
+                                            //destFil.LastWriteTime = _leaf.Modified;
+                                            //destFil.CreationTime = _leaf.Created;
                                         }
                                         good = true;
                                         wrote++;
@@ -763,7 +767,19 @@ namespace GammaCopy
                         segment.Archive = ArchiveFactory.Open(segment.FileStream);
                     }
                     child.FileStream = new MemoryStream();
-                    segment.Archive.Entries.FirstOrDefault(k => k.VolumeIndexFirst == child.ArchiveIndex).WriteTo(child.FileStream);
+                    //segment.Archive.Entries.FirstOrDefault(k => k.VolumeIndexFirst == child.ArchiveIndex).WriteTo(child.FileStream);
+
+                    IArchiveEntry iae = null;
+                    iae = segment.Archive.Entries.FirstOrDefault(k => k.Key == child.Path.Replace("\\", "/"));
+                    if (iae == null)
+                    {
+                        iae = segment.Archive.Entries.FirstOrDefault(k => k.Key == child.Path);
+                    }
+                    if (iae == null)
+                    {
+                        throw new Exception($"{child.Path} not found within {segment.Path}");
+                    }
+                    iae.WriteTo(child.FileStream);
 
                     //    foreach (var fd in archive.Entries)
                     //    {
@@ -1136,6 +1152,7 @@ namespace GammaCopy
 
         internal static void Index(IndexOptions opts)
         {
+            opts.Clean();
             currentIndexOptions = opts;
             Log(opts.ToString());
             Stopwatch sw2 = Stopwatch.StartNew();
@@ -1297,7 +1314,7 @@ namespace GammaCopy
                         {
                             using (MD5 md5 = MD5.Create())
                             {
-                              
+
                                 try
                                 {
                                     SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(file.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
@@ -1329,7 +1346,7 @@ namespace GammaCopy
                                         }
                                         catch (Exception ex) { }
                                     }
-                                   
+
                                 }
                             }
                             Interlocked.Decrement(ref numThreads);
@@ -1386,7 +1403,7 @@ namespace GammaCopy
                     numerator++;
                     progress.blurb = $"{numerator.ToString("N0").PudLeft(4)} / {files.Count:N0} {k.Path.Tail(40)}";
                     progress.Report(numerator / files.Count);
-                  
+
                     using (MD5 md5 = MD5.Create())
                     {
                         SafeFileHandle safeFileHandle = ZlpIOHelper.CreateFileHandle(k.Path, CreationDisposition.OpenExisting, FileAccess.GenericRead, FileShare.None, UseOverlappedAsyncIO);
@@ -1400,7 +1417,7 @@ namespace GammaCopy
                             {
                                 GetAllChecksums(k);
                             }
-                        
+
                             k.FileStream.Dispose();
                             k.FileStream = null;
                         }
