@@ -1,3 +1,5 @@
+
+
 # GammaCopy
 
 An `.SMDB` file, template file, sometimes called a layout, is like a `.ZIP` file but without the actual data.  Save folder and file structure to a template file.  Restore files and folder structure based on a given template and the existing available source material.  GammaCopy has a Highly optimized metadata caching system, incorruptible, with deep archive traversal - for example it will find a file buried several layers deep in a `.RAR` within a `.ZIP` from an `.ISO` inside a `.7z`, and so on, and it will store its hash in an `SQLite` database so that if the data is ever needed GammaCopy has recorded the source material's existence and exactly how to retrieve it.
@@ -19,7 +21,7 @@ License is Apache 2.0 because of [Crc32.cs](https://github.com/damieng/DamienGKi
 
 ***
 ## Disclaimer
-**You are responsible for your own actions.** If you mess something up or loose data while using this software, it's your fault, and your fault only.
+**You are responsible for your own actions.** If you mess something up or lose data while using this software, it's your fault, and your fault only.
 
 - *I am in no way affiliated with, nor is this project endorsed by [SmokeMonsterPacks](https://github.com/SmokeMonsterPacks) or SmokeMonster.*
 
@@ -107,4 +109,3 @@ Finding orphaned metadata cache entries, metadata cache size: 0.
 metadata cache pruning took 00:00:00.0072307.
 Refreshing metadata cache for: Z:\emulation
 ```
-
